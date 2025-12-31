@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sana Özel...</title>
+    <!-- Use Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300&display=swap"
+        rel="stylesheet">
+    <style>
+        /* CSS RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* Dynamic Aurora Background */
+            background: linear-gradient(-45deg, #02020a, #1a1a2e, #2e1a2e, #0b0b1a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            position: relative;
+            cursor: pointer;
+            /* Hint that the whole page is clickable */
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Twinkling Stars */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px;
+            animation: twinkle 20s linear infinite;
+            z-index: 0;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes twinkle {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-550px);
+            }
+        }
+
+        /* CANVASES */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #snowCanvas {
+            z-index: 99;
+            opacity: 1.0;
+        }
+
+        /* Maximum Visibility for Snow */
+        #fireworksCanvas {
+            z-index: 50;
+        }
+
+        /* CONTENT */
+        .content-container {
+            position: relative;
+            z-index: 100;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            pointer-events: none;
+            /* Let clicks pass through to body */
+        }
+
+        .card {
+            /* Interaction Handled globally, but visual cues here */
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            position: relative;
+            animation: floating 6s ease-in-out infinite;
+            pointer-events: auto;
+            /* Just in case user clicks specifically here */
+            z-index: 1000;
+        }
+
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .image-wrapper {
+            position: relative;
+            border-radius: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(255, 40, 40, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #kukinaImage {
+            width: 320px;
+            height: auto;
+            border-radius: 15px;
+            display: block;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            animation: heartbeat 3s infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            10%,
+            100% {
+                transform: scale(1);
+            }
+
+            5%,
+            15% {
+                transform: scale(1.03);
+            }
+        }
+
+        .instruction {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* HIDDEN MESSAGE */
+        .message-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            width: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 1s ease-out;
+            z-index: 2000;
+        }
+
+        .message-container.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .romantic-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: 4rem;
+            /* Big text */
+            color: #ff4d4d;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .sub-text {
+            font-size: 2rem;
+            color: white;
+            text-shadow: 0 0 10px white;
+        }
+
+        /* HIDE STATE */
+        .card.hidden {
+            opacity: 0;
+            transform: scale(0.1) rotate(20deg);
+            pointer-events: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 800px) {
+
+            /* Mobile adjustment for figure */
+            .message-figure {
+                width: 150px !important;
+                /* Smaller figure on mobile */
+                margin-bottom: 15px;
+            }
+
+            .romantic-text {
+                font-size: 2.2rem;
+                /* Readble size on mobile */
+                margin-bottom: 10px;
+            }
+
+            .sub-text {
+                font-size: 1.2rem;
+            }
+
+            #kukinaImage {
+                width: 85vw;
+                /* Maximize width on mobile */
+                max-width: 300px;
+            }
+
+            .instruction {
+                font-size: 1rem;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Floating blended figures */
+        /* Message Figure */
+        .message-figure {
+            width: 300px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+            /* Center and add bottom margin */
+            mix-blend-mode: screen;
+            filter: brightness(1.2) contrast(1.1);
+            animation: floatSlow 5s ease-in-out infinite;
+        }
+
+        @keyframes floatSlow {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Canvases -->
+    <canvas id="snowCanvas"></canvas>
+    <canvas id="fireworksCanvas"></canvas>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <div class="card" id="mainCard">
+            <div class="image-wrapper">
+                <img src="assets/kukina_magical.png" alt="Sihirli Kukina" id="kukinaImage">
+            </div>
+            <p class="instruction">DOKUN...</p>
+        </div>
+
+        <div class="message-container" id="messageContainer">
+            <!-- Floating Figure above text -->
+            <img src="assets/tiger_gazelle.png" alt="Tiger and Gazelle" class="message-figure">
+
+            <h1 class="romantic-text">Bir ömür seninle geçirmek istiyorum...</h1>
+            <p class="sub-text">Mutlu Yıllar Sevgilim ❤️</p>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIG ===
+        const SNOW_COUNT = 150; // Lots of snow
+
+        // === SETUP CANVAS ===
+        const snowCanvas = document.getElementById('snowCanvas');
+        const snowCtx = snowCanvas.getContext('2d');
+        const fireCanvas = document.getElementById('fireworksCanvas');
+        const fireCtx = fireCanvas.getContext('2d');
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            snowCanvas.width = width;
+            snowCanvas.height = height;
+            fireCanvas.width = width;
+            fireCanvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // === SNOWFLAKE ===
+        class Snowflake {
+            constructor() { this.reset(true); }
+            reset(init) {
+                this.x = Math.random() * width;
+                this.y = init ? Math.random() * height : -10;
+                this.size = Math.random() * 10 + 8; // BIG flakes: 8px to 18px
+                this.speed = Math.random() * 2 + 1;
+                this.dangle = 0;
+            }
+            update() {
+                this.y += this.speed;
+                this.dangle += 0.02;
+                this.x += Math.sin(this.dangle) * 1;
+                if (this.y > height) this.reset(false);
+            }
+            draw() {
+                snowCtx.save();
+                snowCtx.translate(this.x, this.y);
+                // Draw a simple 8-point snowflake (asterisk)
+                snowCtx.strokeStyle = "white";
+                snowCtx.lineWidth = 2;
+                snowCtx.beginPath();
+                for (let i = 0; i < 4; i++) {
+                    snowCtx.moveTo(0, -this.size / 2);
+                    snowCtx.lineTo(0, this.size / 2);
+                    snowCtx.rotate(Math.PI / 4);
+                }
+                snowCtx.stroke();
+                snowCtx.restore();
+            }
+        }
+        const snowflakes = Array.from({ length: SNOW_COUNT }, () => new Snowflake());
+
+        function animateSnow() {
+            snowCtx.clearRect(0, 0, width, height);
+            snowflakes.forEach(s => { s.update(); s.draw(); });
+            requestAnimationFrame(animateSnow);
+        }
+        animateSnow();
+
+        // === FIREWORKS ===
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+            }
+            update() {
+                this.vx *= 0.95; this.vy *= 0.95; // Friction
+                this.vy += 0.1; // Gravity
+                this.x += this.vx; this.y += this.vy;
+                this.alpha -= 0.01;
+            }
+            draw() {
+                fireCtx.globalAlpha = this.alpha;
+                fireCtx.fillStyle = this.color;
+                fireCtx.beginPath();
+                fireCtx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                fireCtx.fill();
+            }
+        }
+
+        let particles = [];
+        function createFirework(x, y) {
+            const colors = ['#ff4d4d', '#ffd700', '#ffffff', '#ff00ff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animateFire() {
+            fireCtx.globalAlpha = 0.2;
+            fireCtx.fillStyle = 'black';
+            fireCtx.fillRect(0, 0, width, height); // Trail effect
+
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animateFire);
+        }
+        animateFire();
+
+        // === INTERACTION ===
+        let started = false;
+        function bang(e) {
+            if (started) {
+                // If already started, just make more fireworks on click!
+                createFirework(e.clientX || width / 2, e.clientY || height / 2);
+                return;
+            }
+            started = true;
+
+            // Hide Card
+            document.getElementById('mainCard').classList.add('hidden');
+
+            // Show Message
+            setTimeout(() => {
+                document.getElementById('messageContainer').classList.add('visible');
+            }, 500);
+
+            // Initial Burst
+            createFirework(width / 2, height / 2);
+            createFirework(width / 3, height / 3);
+            createFirework(2 * width / 3, height / 3);
+
+            // Auto fireworks loop
+            setInterval(() => {
+                createFirework(Math.random() * width, Math.random() * height * 0.6);
+            }, 800);
+        }
+
+        // GLOBAL LISTENERS - WORKS EVERYWHERE
+        document.addEventListener('click', bang);
+        document.addEventListener('touchstart', bang);
+
+    </script>
+</body>
+
+</html>
